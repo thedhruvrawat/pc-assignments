@@ -254,5 +254,5 @@ int main(int argc, char* argv[]) {
     gettimeofday(&timecheck, NULL);
     end = timecheck.tv_sec + (double) timecheck.tv_usec / 1000000;
     cleanup(outputFileSize, inputFileSize, outputFD, inputFD);
-    printf("%lf seconds elapsed\n", end - start);
+    printf("Decoding: %lf sec\n", end - start);
 }

@@ -1,7 +1,7 @@
 compfile = input.huff
 outfile = input.dec
-file = input.txt 
-threads = 11
+file = input_1.txt 
+threads = 10
 
 pthreads: encode_pthreads decode_pthreads
 
@@ -20,7 +20,7 @@ decode_openmp: decode_openmp.c
 	gcc -o decode_openmp.o decode_openmp.c -lm -fopenmp
 
 clean:
-	rm *.o $(compfile) $(outfile)
+	rm *.o *.dec *.huff
 
 pthreads_test: encode_pthreads decode_pthreads
 	./encode_pthreads.o $(file) $(compfile) $(threads)

@@ -9,6 +9,7 @@
 #include <errno.h>
 #include <unistd.h>
 #include <time.h>
+#include <sys/time.h>
 
 #define MAX_HEAP_SIZE 256
 
@@ -554,7 +555,7 @@ bool fileEncoderFull(char* inputFileName, char* outputFileName, int num_threads,
         isEncodingSuccessful = fileEncoderBarrier(inputFile, outputFile, huffmanAlphabet, &outputFileSize, inputChunkSizes, outputChunkSizes, num_threads);
     else
         isEncodingSuccessful = fileEncoderLocks(inputFile, outputFile, huffmanAlphabet, &outputFileSize, inputChunkSizes, outputChunkSizes, num_threads);
-    printf("%s is %0.2f%% of %s\n", outputFileName, (float)outputFileSize / (float)originalFileSize, inputFileName);
+    // printf("%s is %0.2f%% of %s\n", outputFileName, (float)outputFileSize / (float)originalFileSize, inputFileName);
     // write encoded file header footer:
     // - output chunk offsets
 
@@ -583,7 +584,7 @@ bool fileEncoderFull(char* inputFileName, char* outputFileName, int num_threads,
 }
 
 int fileProcesser(char* inputname, char* outputname, int num_threads, bool (*processing)(char* arg1, char* arg2, int num_threads, int mode, int rank), int mode) {
-    printf("Processing file %s and saving as %s\n", inputname, outputname);
+    // printf("Processing file %s and saving as %s\n", inputname, outputname);
     bool completed = (*processing)((char*)inputname, (char*)outputname, num_threads, mode, 0);
     if (!completed) {
         printf("Error on file %s\n", outputname);
@@ -593,14 +594,22 @@ int fileProcesser(char* inputname, char* outputname, int num_threads, bool (*pro
 }
 
 int main(int argc, char** argv) {
+    double start, end;
+    struct timeval timecheck;
     char inputname[PATH_MAX];
     char outputname[PATH_MAX];
     void* processingFunction = fileEncoderFull;
-    int num_threads = 1;
-    num_threads = omp_get_max_threads();
+    char* env_var = argv[3];
+    int num_threads = atoi(env_var);
+    omp_set_num_threads(num_threads);
     int mode = 0;       // 0 for barrier, 1 for locks
     strcpy(inputname, argv[optind]);
     strcpy(outputname, argv[optind + 1]);
+    gettimeofday(&timecheck, NULL);
+    start = timecheck.tv_sec + (double)timecheck.tv_usec / 1000000;
     fileProcesser(inputname, outputname, num_threads, processingFunction, mode);
+    gettimeofday(&timecheck, NULL);
+    end = timecheck.tv_sec + (double) timecheck.tv_usec / 1000000;
+    printf("Encoding: %lf sec\n", end - start);
     return 0;
 }
