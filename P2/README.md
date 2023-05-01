@@ -13,7 +13,7 @@ make clean
 make pthreads
 ./encode_pthreads.o <input file> <compressed file> <no. of threads>
 ./decode_pthreads.o <compressed file> <output file>
-diff $(file) $(outfile)
+diff <input file> <output file>
 # For OpenMP
 make omp
 ./encode_openmp.o <input file> <compressed file> <no. of threads>
